@@ -1,0 +1,3 @@
+[submodule "rust-verkle"]
+	path = rust-verkle
+	url = https://github.com/crate-crypto/rust-verkle.git
