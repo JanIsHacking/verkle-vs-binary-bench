@@ -54,26 +54,52 @@ To run the benchmarks for both Verkle and binary Merkle trees:
 cargo run --release
 ```
 
-This will generate the results for each tree size, including the proving time, proof size, and verification time for both trees.
+This will generate the results for each tree size, including the proving time, proof size, and verification time for both trees. Note that for now, only the Verkle benchmarks supports benchmarking multiple tree sizes at a time. For the binary trees, you have to adapt the values of `NUM_KEYS`, `KEY_LOG`, and `CAPACITY` manually.
 
 ### Example Benchmark Results
 
+Verkle Trees on Machine 1
 ```sh
-Starting verkle benchmark for 65536 keys.
-Run 0: Proving time: 123ms, Verification time: 56ms, Proof size: 2340 bytes
-Run 1: Proving time: 128ms, Verification time: 52ms, Proof size: 2320 bytes
-...
-Finished benchmarking verkle.
+name,total_keys,average_proof_time,average_verification_time,average_size,no_runs
+verkle,16384,1.8336086s,1.8694769s,714572,10
+verkle,65536,1.88775008s,1.53578109s,850668,10
+verkle,262144,2.48019581s,1.81236115s,965740,10
+verkle,1048576,2.4411082s,1.56143548s,987180,10
+verkle,4194304,2.98853826s,1.78451174s,1038284,10
+verkle,16777216,51.87884292s,1.60338479s,1169420,10
+```
 
-Starting binary benchmarking with 64 keys and 10 runs.
-Run 0: Proving time: 34ms, Verification time: 20ms, Proof size: 1500 bytes
-Run 1: Proving time: 36ms, Verification time: 22ms, Proof size: 1520 bytes
-...
+Verkle Trees on Machine 2
+```sh
+name,total_keys,average_proof_time,average_verification_time,average_size,no_runs
+verkle,16384,1.305095922s,0.49779828s,714572,10
+verkle,65536,0.972576193s,0.510019633s,850668,10
+verkle,262144,1.069842167s,0.533193488s,965740,10
+verkle,1048576,1.161895569s,0.549184155s,987180,10
+verkle,4194304,1.684242887s,0.55263323s,1038284,10
+verkle,16777216,3.17521192s,0.639270327s,1169420,10
+verkle,33554432,3.486600325s,0.670396345s,1243660,10
+```
+
+Binary Trees on Machine 1
+```sh
+name,total_keys,average_proof_time,average_verification_time,average_size,no_runs
+binary,32,367.28816022s,0.3688766s,32256,10
+binary,64,687.951035045s,0.671940376s,64512,10
+binary,128,1370.611844626s,1.347063578s,129024,10
+```
+
+Binary Trees on Machine 2
+```sh
+name,total_keys,average_proof_time,average_verification_time,average_size,no_runs
+binary,32,226.325181057s,209.162585ms,32256,10
+binary,64,452.653555297s,417.485903ms,64512,10
+binary,128,904.153645446s,835.34797ms,129024,10
 ```
 
 ## Customization
 
-You can adjust the number of keys to benchmark and the number of runs by modifying the `NUM_KEYS` and `num_runs` parameters in the source code.
+You can adjust the number of keys to benchmark and the number of runs by modifying the `NUMBER_OF_LEAVES_TO_PROVE` and `NUM_RUNS` parameters in the source code.
 
 ### Benchmarking on Different Machines
 
