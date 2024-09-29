@@ -21,7 +21,8 @@ use crate::binary::poseidon_merkle_copy::{
     Item as PoseidonItem
 };
 
-const NUMBER_OF_LEAVES_TO_PROVE: usize = 10000;
+const NUMBER_OF_LEAVES_TO_PROVE: usize = 5000;
+const NUM_RUNS: usize = 10usize;
 
 
 pub trait Size {
@@ -63,8 +64,7 @@ impl Size for VerkleProof {
 
 pub fn benchmark_verkle() {
     // let num_keys = vec![16_384, 65_536, 262_144, 1_048_576, 4_194_304, 16_777_216, 67_108_864, 268_435_456];
-    let num_keys = vec![16_384, 65_536, 262_144, 1_048_576, 4_194_304];
-    let num_runs = 10usize;
+    let num_keys = vec![16_384, 65_536, 262_144, 1_048_576, 4_194_304, 16_777_216];
 
     // Parallelize over num_keys
     num_keys.into_par_iter().for_each(|total_keys| {
@@ -74,7 +74,7 @@ pub fn benchmark_verkle() {
 
         println!("Starting verkle benchmark for {}", total_keys);
 
-        let results: Vec<(Duration, Duration, usize)> = (0..num_runs).into_par_iter().map(|i| {
+        let results: Vec<(Duration, Duration, usize)> = (0..NUM_RUNS).into_par_iter().map(|i| {
             println!("Run {}", i);
             // Use the first 10,000 keys for proof generation
             let proof_keys = keys.iter().take(NUMBER_OF_LEAVES_TO_PROVE).cloned().collect::<Vec<_>>();
@@ -98,7 +98,7 @@ pub fn benchmark_verkle() {
             (proof_time, verification_time, size)
         }).collect();
 
-        evaluate_benchmark_results(results, num_runs, total_keys, "verkle".to_string());
+        evaluate_benchmark_results(results, NUM_RUNS, total_keys, NUMBER_OF_LEAVES_TO_PROVE, "verkle".to_string());
     });
 
     println!("Finished benchmarking verkle.")
@@ -107,14 +107,13 @@ pub fn benchmark_verkle() {
 // Only one key at a time ...
 // let num_keys = vec![16_384, 65_536, 262_144, 1_048_576, 4_194_304, 16_777_216, 67_108_864, 268_435_456];
 // let key_logs = vec![14,     16,     18,      20,        22,        24,         26]
-const NUM_KEYS: usize = 64;
-pub const KEY_LOG: usize = 6;
-const CAPACITY: usize = 14;
+const NUM_KEYS: usize = 64;  // number of leaves in the tree
+pub const KEY_LOG: usize = 6;  // log of the number of keys
+const CAPACITY: usize = 14;  // capacity is set to 1 << 14, so 2^14. This represents the maximum number of gates in the circuit
 
 pub fn benchmark_binary() {
     let mut rng = StdRng::seed_from_u64(0xdea1);
-    let num_runs = 10usize;
-    println!("Starting binary benchmarking with {} keys and {} runs.", NUM_KEYS, num_runs);
+    println!("Starting binary benchmarking with {} keys and {} runs.", NUM_KEYS, NUM_RUNS);
 
     let mut keys = vec![];
     for _ in 0..NUM_KEYS {
@@ -127,7 +126,7 @@ pub fn benchmark_binary() {
 
     println!("Starting the benchmark");
     let mut results = vec![];
-    for i in 0..num_runs {
+    for i in 0..NUM_RUNS {
         println!("Run {}", i);
         // Use the first 10,000 keys for proof generation
         let mut rng = thread_rng();
@@ -177,5 +176,5 @@ pub fn benchmark_binary() {
         results.push((total_proving_time, total_verification_time, total_proof_size))
     }
 
-    evaluate_benchmark_results(results, num_runs, NUM_KEYS, "binary".to_string());
+    evaluate_benchmark_results(results, NUM_RUNS, NUM_KEYS, NUMBER_OF_LEAVES_TO_PROVE, "binary".to_string());
 }

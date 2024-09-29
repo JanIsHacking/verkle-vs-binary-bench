@@ -48,6 +48,7 @@ pub fn write_benchmark_results_to_csv(
     average_verification_time: Duration,
     average_size: usize,
     no_runs: usize,
+    leaves_to_prove: usize,
     file_path: &str,
 ) {
     // Open the file in read+write mode to check if it exists and is empty
@@ -67,7 +68,7 @@ pub fn write_benchmark_results_to_csv(
 
     // Write the header if the file was empty or newly created
     if !file_exists || file_metadata(file_path).unwrap_or(0) == 0 {
-        wtr.write_record(&["name", "total_keys", "average_proof_time", "average_verification_time", "average_size", "no_runs"])
+        wtr.write_record(&["name", "total_keys", "average_proof_time", "average_verification_time", "average_size", "no_runs", "leaves_to_prove"])
             .expect("Unable to write header");
     }
 
@@ -79,6 +80,7 @@ pub fn write_benchmark_results_to_csv(
         format!("{:?}", average_verification_time),
         average_size.to_string(),
         no_runs.to_string(),
+        leaves_to_prove.to_string(),
     ])
         .expect("Unable to write benchmark result");
 
@@ -92,7 +94,7 @@ fn file_metadata(file_path: &str) -> std::io::Result<u64> {
     Ok(metadata.len())
 }
 
-pub fn evaluate_benchmark_results(results: Vec<(Duration, Duration, usize)>, num_runs: usize, total_keys: usize, name: String) {// Aggregate results
+pub fn evaluate_benchmark_results(results: Vec<(Duration, Duration, usize)>, num_runs: usize, total_keys: usize, leaves_to_prove: usize, name: String) {// Aggregate results
     let (total_proof_time, total_verification_time, total_size) = results.iter().fold(
         (Duration::new(0, 0), Duration::new(0, 0), 0),
         |(acc_proof, acc_verification, acc_size), &(proof_time, verification_time, size)| {
@@ -105,8 +107,8 @@ pub fn evaluate_benchmark_results(results: Vec<(Duration, Duration, usize)>, num
     let average_size = total_size / num_runs as usize;
 
     println!(
-        "Average time for {} keys: {:?}, Average proof size: {} bytes, Average verification time: {:?}, Number of runs {}",
-        total_keys, average_proof_time, average_size, average_verification_time, num_runs
+        "Average time for {} keys: {:?}, Average proof size: {} bytes, Average verification time: {:?}, Number of runs {}, Leaves to prove {}",
+        total_keys, average_proof_time, average_size, average_verification_time, num_runs, leaves_to_prove
     );
 
     write_benchmark_results_to_csv(
@@ -116,6 +118,7 @@ pub fn evaluate_benchmark_results(results: Vec<(Duration, Duration, usize)>, num
         average_verification_time,
         average_size,
         num_runs,
+        leaves_to_prove,
         "resources/results.csv",
     );
 }
